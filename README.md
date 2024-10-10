@@ -1,4 +1,4 @@
-# Twitter-Like Microservices Application
+# Inno Tweet a Twitter-Like service based Application
 
 This project is a microservices-based Twitter-like system where users can post short messages, read them, and like them. It demonstrates the use of service-based architecture, containerization with Docker, inter-service communication, and an Nginx reverse proxy.
 

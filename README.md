@@ -55,7 +55,6 @@ These services communicate with each other over a Docker network, with Nginx act
 - **Responsibilities**:
   - Post new messages (tweets).
   - Retrieve the latest 10 messages (feed).
-  - Increment the like count for messages.
 
 ### Like Service
 

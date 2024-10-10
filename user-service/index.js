@@ -1,56 +1,53 @@
 const express = require("express");
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 const app = express();
 const port = 3001;
 
 app.use(express.json());
 
-// Creating the Datbase
-const sql_db = new sqlite3.Database("./database.sqlite", (error) => {
-  if (error)
-    console.error("Error Accured during creating the Database: ", error);
+// Connecting to the database
+const pool = new Pool({
+  host: "postgres",
+  user: "postgres",
+  password: "password",
+  database: "shared_db",
+  port: 5432,
 });
 
-// Creating a Users Table
-sql_db.run(`CREATE TABLE IF NOT EXISTS users (
-  username TEXT PRIMARY KEY
-)`);
-
-// Endpoint to register a new user
-app.post("/register", (req, res) => {
+// Endpoint to Register a new user
+app.post("/register", async (req, res) => {
   const { username } = req.body;
 
   if (!username)
-    return res.status(400).send({ error: "The username field is required!" });
+    return res.status(400).send({ error: "The Username Field is required" });
 
-  sql_db.run(`INSERT INTO users(username) VALUES(?)`, [username], (err) => {
-    if (err) {
-      if (err.code === "SQLITE_CONSTRAINT") {
-        return res
-          .status(400)
-          .send({ error: "This username has been taken, Try another one!" });
-      }
-      return res.status(500).send({ error: "Server error Acord" });
-    }
+  try {
+    await pool.query("INSERT INTO users (username) VALUES ($1)", [username]);
     res
       .status(201)
-      .send({ message: "The user has beed registered successfully!" });
-  });
+      .send({ message: "The user has been registered successfully" });
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(400).send({ error: "The username already exists" });
+    }
+    res.status(500).send({ error: "Database error" });
+  }
 });
 
-// Endpoint to check if the user has already been registered
-app.get("/isRegistered/:username", (req, res) => {
+// Endpoint to check if a user is registered
+app.get("/isRegistered/:username", async (req, res) => {
   const { username } = req.params;
-  sql_db.get(
-    `SELECT username FROM users WHERE username = ?`,
-    [username],
-    (err, row) => {
-      if (err) return res.status(500).send({ error: "Server error Accord" });
-      res.send({ isRegistered: !!row });
-    }
-  );
+  try {
+    const result = await pool.query(
+      "SELECT username FROM users WHERE username = $1",
+      [username]
+    );
+    res.send({ isRegistered: result.rows.length > 0 });
+  } catch (err) {
+    res.status(500).send({ error: "Server Error" });
+  }
 });
 
 app.listen(port, () => {
-  console.log(`The User Service is running on the port ${port}`);
+  console.log(`User Service running on port ${port}`);
 });

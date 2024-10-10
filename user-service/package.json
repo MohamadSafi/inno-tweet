@@ -1,8 +1,8 @@
 {
-    "name": "user-service",
-    "version": "1.0.0",
-    "dependencies": {
-        "express": "^4.21.1",
-        "sqlite3": "^5.1.7"
-    }
+  "name": "user-service",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.21.1",
+    "pg": "^8.13.0"
+  }
 }

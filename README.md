@@ -86,7 +86,7 @@ These services communicate with each other over a Docker network, with Nginx act
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/twitter-like-system.git
+   git clone https://github.com/MohamadSafi/inno-tweet.git
    cd twitter-like-system
    ```
 

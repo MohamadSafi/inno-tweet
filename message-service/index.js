@@ -1,24 +1,19 @@
 const express = require("express");
 const axios = require("axios");
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 const app = express();
 const port = 3002;
 
 app.use(express.json());
 
-// Creating the SQLite Database
-const sql_db = new sqlite3.Database("./database.sqlite", (error) => {
-  if (error) console.error("Database opening error: ", error);
+// Connecting to the database
+const pool = new Pool({
+  host: "postgres",
+  user: "postgres",
+  password: "password",
+  database: "shared_db",
+  port: 5432,
 });
-
-// Creating a messages Table
-sql_db.run(`CREATE TABLE IF NOT EXISTS messages (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT NOT NULL,
-  content TEXT NOT NULL,
-  likes INTEGER DEFAULT 0,
-  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-)`);
 
 // Endpoint used to post new message
 app.post("/post", async (req, res) => {
@@ -27,66 +22,49 @@ app.post("/post", async (req, res) => {
   if (!username || !content) {
     return res
       .status(400)
-      .send({ error: "The username and the content of the msg are required" });
+      .send({ error: "The username and content are both required" });
   }
-  // Checking if the message is more that 400 chars
   if (content.length > 400) {
-    return res
-      .status(400)
-      .send({ error: "Content is too big, Maximum is 400 characters" });
+    return res.status(400).send({
+      error: "The Content of the msg ahould not exceed 400 characters",
+    });
   }
-
-  // Checking if the user is registered
+  // Checking if user is registered using user service
   try {
     const response = await axios.get(
       `http://user-service:3001/isRegistered/${username}`
     );
     if (!response.data.isRegistered) {
-      return res.status(403).send({ error: "This username is not registered" });
+      return res.status(403).send({ error: "The user is not registered" });
     }
-  } catch {
-    return res.status(500).send({ error: "User Service is unavailable" });
+  } catch (error) {
+    return res.status(500).send({ error: "The user Service is unavailable" });
   }
 
-  // Adding the message to the database
-  sql_db.run(
-    `INSERT INTO messages (username, content) VALUES (?, ?)`,
-    [username, content],
-    function (err) {
-      if (err) return res.status(500).send({ error: "Database error" });
-      res.status(201).send({
-        message: "The Message has been posted successfully",
-        id: this.lastID,
-      });
-    }
-  );
+  try {
+    const result = await pool.query(
+      "INSERT INTO messages (username, content) VALUES ($1, $2) RETURNING id",
+      [username, content]
+    );
+    res.status(201).send({
+      message: "The Message posted successfully",
+      id: result.rows[0].id,
+    });
+  } catch (err) {
+    res.status(500).send({ error: "Server error accord" });
+  }
 });
 
 // Endpoint to get the last 10 messages from the db
-app.get("/feed", (req, res) => {
-  sql_db.all(
-    `SELECT * FROM messages ORDER BY timestamp DESC LIMIT 10`,
-    [],
-    (err, rows) => {
-      if (err) return res.status(500).send({ error: "Server Error" });
-      res.send(rows);
-    }
-  );
-});
-
-// Increment the likes
-app.post("/like/:id", (req, res) => {
-  const { id } = req.params;
-  sql_db.run(
-    `UPDATE messages SET likes = likes + 1 WHERE id = ?`,
-    [id],
-    function (err) {
-      if (err) return res.status(500).send({ error: "Server error" });
-      if (this.changes === 0)
-        return res.status(404).send({ error: "This Message does not exist" });
-      res.send({ message: "Message liked successfully" });
-    }
-  );
+app.get("/feed", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM messages ORDER BY timestamp DESC LIMIT 10"
+    );
+    res.send(result.rows);
+  } catch (err) {
+    res.status(500).send({ error: "Database error" });
+  }
 });
 
 app.listen(port, () => {

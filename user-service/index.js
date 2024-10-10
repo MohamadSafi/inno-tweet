@@ -33,7 +33,7 @@ app.post("/register", (req, res) => {
       return res.status(500).send({ error: "Server error Acord" });
     }
     res
-      .status(200)
+      .status(201)
       .send({ message: "The user has beed registered successfully!" });
   });
 });

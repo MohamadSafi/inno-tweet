@@ -19,10 +19,7 @@ This project is a microservices-based Twitter-like system where users can post s
   - [User Service Endpoints](#user-service-endpoints)
   - [Message Service Endpoints](#message-service-endpoints)
   - [Like Service Endpoints](#like-service-endpoints)
-- [Testing the Application](#testing-the-application)
 - [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 

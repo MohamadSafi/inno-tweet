@@ -20,6 +20,7 @@ This project is a microservices-based Twitter-like system where users can post s
   - [Message Service Endpoints](#message-service-endpoints)
   - [Like Service Endpoints](#like-service-endpoints)
 - [Project Structure](#project-structure)
+- [Demo Video](#demo-video)
 
 ## Overview
 
@@ -194,12 +195,12 @@ Request Body:
 
 ```
 {
-  "username": "alice",
+  "username": "safi",
   "messageId": 1
 }
 ```
 
-## Project Structure
+### Project Structure
 
 ```
 inno-tweet/
@@ -229,3 +230,9 @@ inno-tweet/
 │   └── .dockerignore
 └── README.md
 ```
+### Demo Video
+
+<a href="https://youtu.be/iYwJzqkvv0A">
+    <img src="https://i.ibb.co/CQfZJ39/demo.png" alt="Demo video" width="100" />
+</a>
+

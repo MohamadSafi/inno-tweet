@@ -45,7 +45,7 @@ app.post("/post", async (req, res) => {
       return res.status(403).send({ error: "This username is not registered" });
     }
   } catch {
-    return res.status(500).send({ error: "Server error Accord" });
+    return res.status(500).send({ error: "User Service is unavailable" });
   }
 
   // Adding the message to the database

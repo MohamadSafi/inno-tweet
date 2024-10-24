@@ -232,6 +232,6 @@ inno-tweet/
 ### Demo Video
 
 <a href="https://youtu.be/UnTlzQ_RHSc">
-    <img src="https://i.ibb.co/CQfZJ39/demo.png" alt="Demo video" width="100" />
+    <img src="https://i.ibb.co/CQfZJ39/demo.png" alt="Demo video" width="90" />
 </a>
 
